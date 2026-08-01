@@ -1,0 +1,11 @@
+File,Title,Rows,Failure Count,Failure Rate,Size (KB)
+dataset_01_enterprise_healthy.csv,Enterprise Data Center – Healthy Fleet,1000,80,8.0%,78.7
+dataset_02_aging_servers.csv,Aging Server Farm – Mixed Health,1200,336,28.0%,99.7
+dataset_03_critical_datacenter.csv,Critical Data Center – High Risk Fleet,800,440,55.0%,66.0
+dataset_04_cloud_storage.csv,Cloud Storage Provider – Large Scale,1500,270,18.0%,123.6
+dataset_05_edge_computing.csv,Edge Computing Nodes – Temperature Stressed,700,245,35.0%,57.1
+dataset_06_hpc_cluster.csv,HPC Cluster – High Write Workload,1100,440,40.0%,98.7
+dataset_07_backup_storage.csv,Backup Storage – Light Workload,900,45,5.0%,71.7
+dataset_08_mixed_fleet_2024.csv,Mixed Fleet 2024 – Multi-Vendor,1300,390,30.0%,108.3
+dataset_09_nvme_fleet.csv,NVMe SSD Fleet – High-Performance,850,102,12.0%,68.6
+dataset_10_qlc_endurance.csv,QLC NAND – Low Endurance Devices,1000,480,48.0%,81.8

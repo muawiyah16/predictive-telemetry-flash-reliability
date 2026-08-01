@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}System Reports – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-chart-line"></i> System Reports</h1>
+    <p class="dash-sub">Performance metrics, classification results and model evaluation reports</p>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn-sm btn-outline">
+    <i class="fas fa-arrow-left"></i> Back
+  </a>
+</div>
+
+<!-- Report Graphs -->
+{% if report_graphs %}
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-chart-bar text-indigo"></i> Performance Report Graphs</h2>
+  <div class="report-graphs">
+    {% for key, img in report_graphs.items() %}
+    <div class="rg-card">
+      <img src="data:image/png;base64,{{ img }}" class="graph-img" alt="{{ key }}"/>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Prediction Details Table -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-brain text-violet"></i> Detailed Prediction Reports</h2>
+  {% if preds %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th><th>User</th><th>Dataset</th><th>Algorithm</th>
+          <th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in preds %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><span class="user-badge">{{ p.username }}</span></td>
+          <td class="td-file"><i class="fas fa-file-csv"></i> {{ p.original_name }}</td>
+          <td><span class="badge badge-indigo">{{ p.algorithm }}</span></td>
+          <td>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar" style="width:{{ (p.accuracy or 0)*100 }}%"></div>
+            </div>
+            <strong>{{ "%.1f"|format((p.accuracy or 0)*100) }}%</strong>
+          </td>
+          <td>{{ "%.1f"|format((p.precision_val or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.recall_val or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.f1_score or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.auc_score or 0)*100) }}%</td>
+          <td>{{ p.created_at[:16] if p.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><i class="fas fa-chart-line"></i><p>No prediction data yet. Upload datasets to generate reports.</p></div>
+  {% endif %}
+</div>
+
+<!-- System Classification Summary -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-classify text-emerald"></i> Classification Summary</h2>
+  <div class="classif-grid">
+    <div class="classif-card">
+      <div class="cc-icon cc-low"><i class="fas fa-shield-check"></i></div>
+      <h3>Low Risk</h3>
+      <p>SSDs operating within normal parameters. Routine monitoring recommended.</p>
+      <ul>
+        <li>Wear level &lt; 60%</li>
+        <li>Temperature &lt; 50°C</li>
+        <li>Failure probability &lt; 30%</li>
+      </ul>
+    </div>
+    <div class="classif-card">
+      <div class="cc-icon cc-med"><i class="fas fa-triangle-exclamation"></i></div>
+      <h3>Medium Risk (Degrading)</h3>
+      <p>Showing early signs of wear. Proactive maintenance needed within 60-180 days.</p>
+      <ul>
+        <li>Wear level 60–80%</li>
+        <li>Temperature 50–60°C</li>
+        <li>Failure probability 30–60%</li>
+      </ul>
+    </div>
+    <div class="classif-card">
+      <div class="cc-icon cc-high"><i class="fas fa-fire"></i></div>
+      <h3>High Risk (Critical)</h3>
+      <p>Imminent failure predicted. Immediate data backup and device replacement required.</p>
+      <ul>
+        <li>Wear level &gt; 80%</li>
+        <li>Temperature &gt; 60°C</li>
+        <li>Failure probability &gt; 60%</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

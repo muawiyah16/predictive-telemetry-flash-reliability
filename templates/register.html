@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Register – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-icon"><i class="fas fa-microchip"></i></div>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-sub">Join the SSD failure prediction platform</p>
+    <form method="POST" class="auth-form">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Username</label>
+        <input type="text" name="username" placeholder="Enter username" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email</label>
+        <input type="email" name="email" placeholder="your@email.com" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <input type="password" name="password" placeholder="Min 6 characters" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Confirm Password</label>
+        <input type="password" name="confirm_password" placeholder="Repeat password" required/>
+      </div>
+      <button type="submit" class="btn-auth"><i class="fas fa-user-plus"></i> Create Account</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign In</a></p>
+  </div>
+</div>
+{% endblock %}

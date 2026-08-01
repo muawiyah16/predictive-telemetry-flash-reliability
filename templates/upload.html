@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Upload Dataset – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-upload"></i> Upload SSD Dataset</h1>
+    <p class="dash-sub">Upload a CSV file with SSD SMART attributes for AI-powered failure prediction</p>
+  </div>
+</div>
+
+<div class="upload-container">
+  <div class="upload-card">
+    <!-- Upload area -->
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+      <div class="upload-drop" id="dropZone">
+        <div class="upload-icon" id="uploadIcon">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <h3>Drag & Drop your CSV here</h3>
+        <p>or click to browse files</p>
+        <input type="file" name="file" id="fileInput" accept=".csv" style="display:none"/>
+        <button type="button" class="btn-browse" onclick="document.getElementById('fileInput').click()">
+          <i class="fas fa-folder-open"></i> Browse Files
+        </button>
+        <div class="upload-info" id="fileInfo" style="display:none">
+          <i class="fas fa-file-csv"></i>
+          <span id="fileName"></span>
+          <span id="fileSize"></span>
+        </div>
+      </div>
+      <button type="submit" class="btn-upload" id="submitBtn" disabled>
+        <span id="btnText"><i class="fas fa-brain"></i> Analyze with AI</span>
+        <span id="btnLoading" style="display:none"><i class="fas fa-spinner fa-spin"></i> Processing…</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Processing animation (shown after submit) -->
+  <div class="process-anim" id="processAnim" style="display:none">
+    <div class="pa-disk">
+      <div class="pa-ring r1"></div>
+      <div class="pa-ring r2"></div>
+      <div class="pa-core"><i class="fas fa-hard-drive"></i></div>
+    </div>
+    <div class="pa-steps" id="paSteps">
+      {% set steps = ['Collecting SMART data…','Monitoring health metrics…','Analyzing flash reliability…',
+        'Preprocessing dataset…','Extracting features…','Training ML model…',
+        'Predicting failure probability…','Building visualizations…','Generating alerts…'] %}
+      {% for s in steps %}
+      <div class="pa-step" id="step{{ loop.index }}">
+        <div class="pa-dot"></div>
+        <span>{{ s }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Sample format guide -->
+  <div class="section-box mt-2">
+    <h2 class="sb-title"><i class="fas fa-table"></i> Expected CSV Format</h2>
+    <p class="text-muted mb-1">Your CSV should contain SSD SMART attributes. Supported columns:</p>
+    <div class="format-cols">
+      {% for col in ['wear_level','pe_cycles','temperature','read_error_rate','write_error_rate',
+        'bad_block_count','ecc_error_rate','power_on_hours','failure (0/1)'] %}
+      <span class="format-col">{{ col }}</span>
+      {% endfor %}
+    </div>
+    <p class="text-muted mt-1">
+      <i class="fas fa-info-circle text-cyan"></i>
+      Any CSV with numeric columns works — the system auto-detects features and synthesizes labels if needed.
+    </p>
+    <a href="{{ url_for('static', filename='sample_ssd_data.csv') }}" class="btn-sm btn-indigo" download>
+      <i class="fas fa-download"></i> Download Sample CSV
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fileInput = document.getElementById('fileInput');
+const dropZone  = document.getElementById('dropZone');
+const fileInfo  = document.getElementById('fileInfo');
+const fileName  = document.getElementById('fileName');
+const fileSize  = document.getElementById('fileSize');
+const submitBtn = document.getElementById('submitBtn');
+const uploadForm= document.getElementById('uploadForm');
+const processAnim=document.getElementById('processAnim');
+
+function updateFileUI(file) {
+  fileName.textContent = file.name;
+  fileSize.textContent = `(${(file.size/1024).toFixed(1)} KB)`;
+  fileInfo.style.display='flex';
+  submitBtn.disabled=false;
+}
+
+fileInput.addEventListener('change', ()=>{ if(fileInput.files[0]) updateFileUI(fileInput.files[0]); });
+
+dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('dragging');});
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('dragging'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.classList.remove('dragging');
+  const file=e.dataTransfer.files[0];
+  if(file && file.name.endsWith('.csv')){
+    const dt=new DataTransfer(); dt.items.add(file);
+    fileInput.files=dt.files; updateFileUI(file);
+  }
+});
+
+uploadForm.addEventListener('submit', ()=>{
+  document.getElementById('btnText').style.display='none';
+  document.getElementById('btnLoading').style.display='inline';
+  submitBtn.disabled=true;
+  processAnim.style.display='flex';
+  let step=1;
+  const maxSteps=9;
+  const iv=setInterval(()=>{
+    if(step<=maxSteps){
+      const el=document.getElementById('step'+step);
+      if(el){ el.classList.add('active'); if(step>1) document.getElementById('step'+(step-1)).classList.add('done'); }
+      step++;
+    } else clearInterval(iv);
+  }, 600);
+});
+</script>
+{% endblock %}

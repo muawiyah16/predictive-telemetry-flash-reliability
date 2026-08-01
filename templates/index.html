@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}SSDAnalyzer – AI-Powered SSD Failure Prediction{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fas fa-sparkles"></i> AI-Powered Flash Reliability
+    </div>
+    <h1 class="hero-title">
+      Predict SSD Failures<br/>
+      <span class="gradient-text">Before They Happen</span>
+    </h1>
+    <p class="hero-subtitle">
+      Advanced machine learning analyzes wear levels, P/E cycles, temperature and error rates
+      to protect your data center from unexpected storage failures.
+    </p>
+    <div class="hero-actions">
+      <a href="{{ url_for('register') }}" class="btn-hero-primary">
+        <i class="fas fa-rocket"></i> Get Started Free
+      </a>
+      <a href="{{ url_for('login') }}" class="btn-hero-secondary">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-val">99.7%</span><span class="hstat-label">Accuracy</span></div>
+      <div class="hstat-sep"></div>
+      <div class="hstat"><span class="hstat-val">10+</span><span class="hstat-label">ML Models</span></div>
+      <div class="hstat-sep"></div>
+      <div class="hstat"><span class="hstat-val">Real-Time</span><span class="hstat-label">Monitoring</span></div>
+      <div class="hstat-sep"></div>
+      <div class="hstat"><span class="hstat-val">9</span><span class="hstat-label">Analytics Graphs</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="disk-anim" id="diskAnim">
+      <div class="disk-outer">
+        <div class="disk-ring r1"></div>
+        <div class="disk-ring r2"></div>
+        <div class="disk-ring r3"></div>
+        <div class="disk-core">
+          <i class="fas fa-hard-drive"></i>
+        </div>
+      </div>
+      <div class="disk-metrics">
+        <div class="dm-card dm-wear"><i class="fas fa-chart-line"></i><span>Wear Level</span><strong>73%</strong></div>
+        <div class="dm-card dm-temp"><i class="fas fa-temperature-high"></i><span>Temperature</span><strong>54°C</strong></div>
+        <div class="dm-card dm-err"><i class="fas fa-bug"></i><span>Error Rate</span><strong>0.003</strong></div>
+        <div class="dm-card dm-risk dm-high"><i class="fas fa-shield-exclamation"></i><span>Risk Level</span><strong>High</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Workflow Section -->
+<section class="section-workflow">
+  <div class="section-header">
+    <h2>System Workflow</h2>
+    <p>Step-by-step intelligent analysis pipeline</p>
+  </div>
+  <div class="workflow-steps">
+    {% set steps = [
+      ('fa-database','Collect SMART Data','Gather SSD SMART attributes from data center devices'),
+      ('fa-heart-pulse','Monitor Health','Real-time tracking of wear levels and usage patterns'),
+      ('fa-memory','Flash Analysis','Analyze NAND wear leveling and bit error rates'),
+      ('fa-filter','Preprocess Data','Clean, normalize and format raw sensor data'),
+      ('fa-wand-magic-sparkles','Feature Extraction','Extract key indicators: ECC rate, bad blocks, P/E cycles'),
+      ('fa-brain','Train ML Model','Random Forest + SVM + Gradient Boosting ensemble'),
+      ('fa-chart-pie','Predict Failures','Estimate failure probability with risk classification'),
+      ('fa-display','Dashboard','Interactive charts and real-time visualization'),
+      ('fa-bell','Smart Alerts','Instant notifications for high-risk devices'),
+    ] %}
+    {% for icon, title, desc in steps %}
+    <div class="wf-step" style="--delay:{{ loop.index0 * 0.08 }}s">
+      <div class="wf-num">{{ loop.index }}</div>
+      <div class="wf-icon"><i class="fas {{ icon }}"></i></div>
+      <h3 class="wf-title">{{ title }}</h3>
+      <p class="wf-desc">{{ desc }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section-features">
+  <div class="section-header">
+    <h2>System Modules</h2>
+    <p>Complete 10-module architecture for enterprise-grade SSD monitoring</p>
+  </div>
+  <div class="features-grid">
+    {% set modules = [
+      ('fa-database','Data Collection','Collects SMART logs, flash wear stats, temperature records and error logs from all SSD devices','indigo'),
+      ('fa-heart-pulse','Health Monitoring','Tracks device usage, monitors wear levels and detects abnormal operating patterns in real-time','emerald'),
+      ('fa-memory','Flash Reliability','NAND wear leveling analysis, bit error rates, retention errors and write amplification metrics','cyan'),
+      ('fa-broom','Data Preprocessing','Automated data cleaning, missing value handling, normalization and dataset formatting','amber'),
+      ('fa-wand-magic-sparkles','Feature Extraction','Extracts wear leveling count, P/E cycles, temperature variation and ECC error rate features','pink'),
+      ('fa-brain','ML Prediction','Random Forest, SVM, Gradient Boosting and Neural Network ensemble failure prediction','violet'),
+      ('fa-shield-halved','Risk Assessment','Three-tier risk classification: Low, Medium, High with recovery period estimation','rose'),
+      ('fa-chart-bar','Visualization','Interactive dashboards with 10 graph types including confusion matrix and PR curves','blue'),
+      ('fa-bell','Alert System','Real-time severity-based alerts for high-risk and degrading SSD devices','orange'),
+      ('fa-server','Data Storage','SQLite-based persistent storage for all device metrics and prediction history','teal'),
+    ] %}
+    {% for icon, title, desc, color in modules %}
+    <div class="feature-card fc-{{ color }}">
+      <div class="fc-icon"><i class="fas {{ icon }}"></i></div>
+      <h3>{{ title }}</h3>
+      <p>{{ desc }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Graphs Preview -->
+<section class="section-graphs">
+  <div class="section-header">
+    <h2>10 Analytics Visualizations</h2>
+    <p>Comprehensive graphical analysis of every SSD in your data center</p>
+  </div>
+  <div class="graphs-grid">
+    {% set gnames = ['SSD Wear Level Trend','Temperature Variation','Read/Write Error Rate',
+      'Failure Probability','Model Accuracy','Feature Importance',
+      'Lifetime Prediction','Health Distribution','Confusion Matrix','Precision-Recall Curve'] %}
+    {% for gname in gnames %}
+    <div class="graph-card">
+      <div class="graph-icon"><i class="fas fa-chart-line"></i></div>
+      <span>{{ gname }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section-cta">
+  <div class="cta-card">
+    <h2>Ready to protect your data center?</h2>
+    <p>Upload your SSD dataset and get instant AI-powered failure predictions with detailed analytics.</p>
+    <a href="{{ url_for('register') }}" class="btn-hero-primary">
+      <i class="fas fa-rocket"></i> Start Analysis Now
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Particle animation
+const c = document.getElementById('particles');
+if(c){
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${3+Math.random()*4}s`;
+    c.appendChild(p);
+  }
+}
+// Animate workflow steps on scroll
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:0.1});
+document.querySelectorAll('.wf-step,.feature-card').forEach(el=>obs.observe(el));
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}User Management – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-users-gear"></i> User Management</h1>
+    <p class="dash-sub">{{ users|length }} registered users</p>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn-sm btn-outline">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
+</div>
+
+<div class="section-box">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Username</th><th>Email</th><th>Role</th>
+          <th>Uploads</th><th>Last Login</th><th>Registered</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>
+            <div class="user-row">
+              <div class="u-avatar">{{ u.username[0].upper() }}</div>
+              <strong>{{ u.username }}</strong>
+            </div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span class="badge badge-{{ 'indigo' if u.role=='admin' else 'secondary' }}">
+              <i class="fas {{ 'fa-crown' if u.role=='admin' else 'fa-user' }}"></i>
+              {{ u.role }}
+            </span>
+          </td>
+          <td>{{ u.uploads or 0 }}</td>
+          <td>{{ u.last_login[:16] if u.last_login else 'Never' }}</td>
+          <td>{{ u.created_at[:10] if u.created_at else '—' }}</td>
+          <td>
+            {% if u.role != 'admin' %}
+            <form method="POST" action="{{ url_for('delete_user', uid=u.id) }}"
+                  onsubmit="return confirm('Delete {{ u.username }}?')">
+              <button type="submit" class="btn-sm btn-danger">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+            {% else %}
+            <span class="text-muted">Protected</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

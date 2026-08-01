@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Login – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-icon"><i class="fas fa-shield-halved"></i></div>
+    <h1 class="auth-title">Welcome Back</h1>
+    <p class="auth-sub">Sign in to your SSDAnalyzer account</p>
+    <form method="POST" class="auth-form">
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Username</label>
+        <input type="text" name="username" placeholder="Enter username" required/>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <input type="password" name="password" placeholder="Enter password" required/>
+      </div>
+      <button type="submit" class="btn-auth"><i class="fas fa-right-to-bracket"></i> Sign In</button>
+    </form>
+    <div class="auth-hint">
+      <i class="fas fa-info-circle"></i>
+      Admin: <strong>admin</strong> / <strong>admin123</strong>
+    </div>
+    <p class="auth-switch">No account? <a href="{{ url_for('register') }}">Register here</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}User Dashboard – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-gauge-high"></i> My Dashboard</h1>
+    <p class="dash-sub">Welcome back, <strong>{{ session.username }}</strong> — monitor your SSD analysis results</p>
+  </div>
+  <a href="{{ url_for('upload') }}" class="btn-primary">
+    <i class="fas fa-upload"></i> Upload New Dataset
+  </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-row">
+  <div class="stat-card sc-indigo">
+    <div class="sc-icon"><i class="fas fa-hard-drive"></i></div>
+    <div><span class="sc-val">{{ stats.total_uploads }}</span><span class="sc-label">Total Uploads</span></div>
+  </div>
+  <div class="stat-card sc-emerald">
+    <div class="sc-icon"><i class="fas fa-circle-check"></i></div>
+    <div><span class="sc-val">{{ stats.completed }}</span><span class="sc-label">Completed</span></div>
+  </div>
+  <div class="stat-card sc-amber">
+    <div class="sc-icon"><i class="fas fa-clock"></i></div>
+    <div><span class="sc-val">{{ stats.pending }}</span><span class="sc-label">Pending</span></div>
+  </div>
+  <div class="stat-card sc-rose">
+    <div class="sc-icon"><i class="fas fa-bell"></i></div>
+    <div><span class="sc-val">{{ stats.alerts }}</span><span class="sc-label">Active Alerts</span></div>
+  </div>
+</div>
+
+<!-- Active Alerts -->
+{% if alerts %}
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-bell text-rose"></i> Active Alerts</h2>
+  <div class="alerts-list">
+    {% for alert in alerts %}
+    <div class="alert-item ai-{{ alert.severity }}">
+      <div class="ai-icon">
+        <i class="fas {% if alert.severity=='critical' %}fa-circle-xmark{% else %}fa-triangle-exclamation{% endif %}"></i>
+      </div>
+      <div class="ai-body">
+        <span class="ai-device">{{ alert.device_id }}</span>
+        <p>{{ alert.message }}</p>
+        <small>{{ alert.created_at }}</small>
+      </div>
+      <button class="ai-read" onclick="markRead({{ alert.id }}, this)">
+        <i class="fas fa-check"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Datasets Table -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-database"></i> My Datasets</h2>
+  {% if datasets %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Filename</th><th>Rows</th><th>Columns</th>
+          <th>Uploaded</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ds in datasets %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td class="td-file"><i class="fas fa-file-csv"></i> {{ ds.original_name }}</td>
+          <td>{{ ds.rows or '—' }}</td>
+          <td>{{ ds.columns or '—' }}</td>
+          <td>{{ ds.upload_time[:16] if ds.upload_time else '—' }}</td>
+          <td>
+            <span class="badge badge-{{ 'success' if ds.status=='completed' else 'warning' if ds.status=='processing' else 'secondary' }}">
+              {{ ds.status }}
+            </span>
+          </td>
+          <td>
+            {% if ds.status == 'completed' %}
+            <a href="{{ url_for('analysis_result', dataset_id=ds.id) }}" class="btn-sm btn-indigo">
+              <i class="fas fa-chart-bar"></i> View Results
+            </a>
+            {% else %}
+            <span class="text-muted">Processing…</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-hard-drive"></i>
+    <h3>No datasets yet</h3>
+    <p>Upload your first SSD dataset to get started with failure prediction.</p>
+    <a href="{{ url_for('upload') }}" class="btn-primary">
+      <i class="fas fa-upload"></i> Upload Dataset
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function markRead(id, btn) {
+  fetch(`/alerts/read/${id}`, {method:'POST'})
+    .then(()=>{ btn.closest('.alert-item').remove(); });
+}
+</script>
+{% endblock %}

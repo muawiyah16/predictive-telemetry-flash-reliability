@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}Analysis Results – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-chart-bar"></i> Analysis Results</h1>
+    <p class="dash-sub">Dataset: <strong>{{ dataset.original_name }}</strong> &nbsp;|&nbsp; {{ dataset.rows }} devices analyzed</p>
+  </div>
+  <a href="{{ url_for('user_dashboard') }}" class="btn-sm btn-outline">
+    <i class="fas fa-arrow-left"></i> Back
+  </a>
+</div>
+
+<!-- Performance Metrics -->
+<div class="stats-row">
+  <div class="stat-card sc-indigo">
+    <div class="sc-icon"><i class="fas fa-bullseye"></i></div>
+    <div><span class="sc-val">{{ results.accuracy }}%</span><span class="sc-label">Accuracy</span></div>
+  </div>
+  <div class="stat-card sc-emerald">
+    <div class="sc-icon"><i class="fas fa-crosshairs"></i></div>
+    <div><span class="sc-val">{{ results.precision }}%</span><span class="sc-label">Precision</span></div>
+  </div>
+  <div class="stat-card sc-cyan">
+    <div class="sc-icon"><i class="fas fa-redo"></i></div>
+    <div><span class="sc-val">{{ results.recall }}%</span><span class="sc-label">Recall</span></div>
+  </div>
+  <div class="stat-card sc-violet">
+    <div class="sc-icon"><i class="fas fa-star"></i></div>
+    <div><span class="sc-val">{{ results.f1_score }}%</span><span class="sc-label">F1 Score</span></div>
+  </div>
+  <div class="stat-card sc-amber">
+    <div class="sc-icon"><i class="fas fa-area-chart"></i></div>
+    <div><span class="sc-val">{{ results.auc }}%</span><span class="sc-label">AUC Score</span></div>
+  </div>
+</div>
+
+<!-- Health Summary -->
+<div class="health-summary">
+  <div class="hs-card hs-healthy">
+    <i class="fas fa-shield-check"></i>
+    <span class="hs-val">{{ results.healthy }}</span>
+    <span class="hs-label">Healthy</span>
+  </div>
+  <div class="hs-card hs-degrading">
+    <i class="fas fa-triangle-exclamation"></i>
+    <span class="hs-val">{{ results.degrading }}</span>
+    <span class="hs-label">Degrading</span>
+  </div>
+  <div class="hs-card hs-critical">
+    <i class="fas fa-circle-xmark"></i>
+    <span class="hs-val">{{ results.critical }}</span>
+    <span class="hs-label">Critical</span>
+  </div>
+</div>
+
+<!-- 10 Graphs Section -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-chart-line text-indigo"></i> Analysis Graphs</h2>
+
+  <!-- Tab navigation -->
+  <div class="graph-tabs" id="graphTabs">
+    <button class="gt active" data-tab="tab1">Wear Trend</button>
+    <button class="gt" data-tab="tab2">Temperature</button>
+    <button class="gt" data-tab="tab3">Error Rate</button>
+    <button class="gt" data-tab="tab4">Failure Prob</button>
+    <button class="gt" data-tab="tab5">Accuracy</button>
+    <button class="gt" data-tab="tab6">Features</button>
+    <button class="gt" data-tab="tab7">Lifetime</button>
+    <button class="gt" data-tab="tab8">Health Dist</button>
+    <button class="gt" data-tab="tab9">Confusion</button>
+    <button class="gt" data-tab="tab10">PR Curve</button>
+  </div>
+
+  <div class="graph-panels">
+    {% if results.graphs %}
+      {% set gkeys = [('tab1','wear_trend'),('tab2','temperature'),('tab3','error_rate'),
+        ('tab4','failure_prob'),('tab5','train_accuracy'),('tab6','feature_importance'),
+        ('tab7','lifetime'),('tab8','health_dist'),('tab9','confusion_matrix'),('tab10','pr_curve')] %}
+      {% for tabid, gkey in gkeys %}
+      <div class="graph-panel {{ 'active' if loop.first else '' }}" id="{{ tabid }}">
+        {% if results.graphs.get(gkey) %}
+        <img src="data:image/png;base64,{{ results.graphs[gkey] }}" class="graph-img" alt="{{ gkey }}"/>
+        {% else %}
+        <div class="graph-placeholder"><i class="fas fa-chart-bar"></i><p>Graph not available</p></div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="graph-placeholder full">
+      <i class="fas fa-chart-bar"></i>
+      <p>Graphs will appear after processing completes.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Additional graphs (pe_scatter + risk_bar) -->
+{% if results.graphs %}
+<div class="graphs-2col">
+  {% if results.graphs.get('pe_scatter') %}
+  <div class="section-box">
+    <h3 class="sb-title"><i class="fas fa-scatter-chart"></i> P/E Cycles vs Failure Prob</h3>
+    <img src="data:image/png;base64,{{ results.graphs.pe_scatter }}" class="graph-img"/>
+  </div>
+  {% endif %}
+  {% if results.graphs.get('risk_bar') %}
+  <div class="section-box">
+    <h3 class="sb-title"><i class="fas fa-chart-bar"></i> Risk Classification</h3>
+    <img src="data:image/png;base64,{{ results.graphs.risk_bar }}" class="graph-img"/>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Recovery Period Estimation -->
+<div class="section-box" id="recovery">
+  <h2 class="sb-title"><i class="fas fa-heart-pulse text-rose"></i> Recovery Period Estimation</h2>
+  <p class="text-muted mb-1">Showing first 20 devices with health state, recommended actions, and estimated days to action.</p>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Device ID</th>
+          <th>Health State</th>
+          <th>Failure Probability</th>
+          <th>Days to Action</th>
+          <th>Note</th>
+          <th>Recommended Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in recovery %}
+        <tr>
+          <td class="td-mono">{{ rec.device_id }}</td>
+          <td>
+            <span class="badge badge-{{ rec.badge }}">
+              <i class="fas {% if rec.state=='Healthy' %}fa-shield-check{% elif rec.state=='Degrading' %}fa-triangle-exclamation{% elif rec.state=='Critical' %}fa-fire{% else %}fa-skull{% endif %}"></i>
+              {{ rec.state }}
+            </span>
+          </td>
+          <td class="td-prob">
+            <div class="prob-bar-wrap">
+              <div class="prob-bar" style="width:{{ rec.probability|replace('%','') }}%"></div>
+            </div>
+            {{ rec.probability }}
+          </td>
+          <td><strong>{{ rec.days_to_action }}</strong></td>
+          <td class="td-note">{{ rec.note }}</td>
+          <td>
+            <ul class="action-list">
+              {% for action in rec.actions %}
+              <li><i class="fas fa-chevron-right"></i> {{ action }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Device Details Table -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-server"></i> Device Details (Top 50)</h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Device</th><th>Wear %</th><th>P/E Cycles</th><th>Temp °C</th>
+          <th>Read Err</th><th>Write Err</th><th>Bad Blocks</th>
+          <th>ECC Err</th><th>Hours</th><th>Health</th><th>Risk</th><th>Failure Prob</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dev in devices %}
+        <tr>
+          <td class="td-mono">{{ dev.device_id }}</td>
+          <td>{{ "%.1f"|format(dev.wear_level or 0) }}</td>
+          <td>{{ dev.pe_cycles or 0 }}</td>
+          <td>{{ "%.1f"|format(dev.temperature or 0) }}</td>
+          <td>{{ "%.4f"|format(dev.read_error_rate or 0) }}</td>
+          <td>{{ "%.4f"|format(dev.write_error_rate or 0) }}</td>
+          <td>{{ dev.bad_block_count or 0 }}</td>
+          <td>{{ "%.4f"|format(dev.ecc_error_rate or 0) }}</td>
+          <td>{{ dev.power_on_hours or 0 }}</td>
+          <td>
+            <span class="badge badge-{{ 'success' if dev.health_status=='Healthy' else 'warning' if dev.health_status=='Degrading' else 'danger' }}">
+              {{ dev.health_status }}
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-{{ 'success' if dev.risk_level=='Low' else 'warning' if dev.risk_level=='Medium' else 'danger' }}">
+              {{ dev.risk_level }}
+            </span>
+          </td>
+          <td>
+            <div class="prob-bar-wrap">
+              <div class="prob-bar pb-{{ dev.risk_level|lower }}" style="width:{{ (dev.failure_probability or 0)*100 }}%"></div>
+            </div>
+            {{ "%.1f"|format((dev.failure_probability or 0)*100) }}%
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Graph Tabs
+document.querySelectorAll('.gt').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.gt').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.graph-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}SSD Failure Analysis System{% endblock %}</title>
+  <meta name="description" content="Intelligent SSD Failure Analysis and Prediction System for Data Centers powered by Machine Learning"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon"><i class="fas fa-microchip"></i></div>
+      <span class="brand-text">SSD<span class="brand-accent">Analyzer</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint=='index' %}active{% endif %}">
+        <i class="fas fa-home"></i> Home
+      </a>
+      {% if session.get('user_id') %}
+        {% if session.get('role') == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">
+            <i class="fas fa-shield-halved"></i> Admin
+          </a>
+          <a href="{{ url_for('admin_users') }}" class="nav-link"><i class="fas fa-users"></i> Users</a>
+          <a href="{{ url_for('admin_reports') }}" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a>
+          <a href="{{ url_for('admin_analytics') }}" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+        {% else %}
+          <a href="{{ url_for('user_dashboard') }}" class="nav-link {% if request.endpoint=='user_dashboard' %}active{% endif %}">
+            <i class="fas fa-gauge-high"></i> Dashboard
+          </a>
+          <a href="{{ url_for('upload') }}" class="nav-link {% if request.endpoint=='upload' %}active{% endif %}">
+            <i class="fas fa-upload"></i> Upload
+          </a>
+        {% endif %}
+        <div class="nav-user">
+          <div class="user-avatar">{{ session.get('username', 'U')[0].upper() }}</div>
+          <span class="nav-username">{{ session.get('username') }}</span>
+          <a href="{{ url_for('logout') }}" class="btn-logout">
+            <i class="fas fa-right-from-bracket"></i>
+          </a>
+        </div>
+      {% else %}
+        <a href="{{ url_for('login') }}"    class="nav-link">Login</a>
+        <a href="{{ url_for('register') }}" class="btn-primary-sm">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+          <i class="fas {% if cat=='success' %}fa-circle-check{% elif cat=='danger' %}fa-circle-xmark{% elif cat=='warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+          {{ msg }}
+          <button class="flash-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span><i class="fas fa-microchip"></i> SSDAnalyzer &copy; 2026</span>
+      <span>ML-Powered Failure Prediction for Data Centers</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Analytics – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-chart-bar"></i> System Analytics</h1>
+    <p class="dash-sub">Deep-dive analytics on SSD health trends, temperature patterns and failure distributions</p>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn-sm btn-outline">
+    <i class="fas fa-arrow-left"></i> Back
+  </a>
+</div>
+
+{% if analytics_graphs %}
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-chart-area text-cyan"></i> Analytics Visualizations</h2>
+  <div class="analytics-graphs">
+    {% set titles = {
+      'monthly_uploads': 'Monthly Dataset Upload Trend',
+      'temp_hist': 'SSD Temperature Distribution',
+      'wear_line': 'SSD Wear Level Analysis',
+      'bad_block': 'Bad Block Count Distribution'
+    } %}
+    {% for key, img in analytics_graphs.items() %}
+    <div class="an-card">
+      <h3 class="an-title">{{ titles.get(key, key|replace('_',' ')|title()) }}</h3>
+      <img src="data:image/png;base64,{{ img }}" class="graph-img" alt="{{ key }}"/>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="section-box">
+  <div class="empty-state">
+    <i class="fas fa-chart-bar"></i>
+    <h3>No analytics data yet</h3>
+    <p>Analytics will appear after users upload and analyze SSD datasets.</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- Analytics Info Cards -->
+<div class="analytics-info">
+  <div class="ai-info-card">
+    <i class="fas fa-microchip"></i>
+    <h3>Flash Memory Parameters</h3>
+    <p>Monitor NAND wear leveling, program/erase cycles, bit error rates, and retention error patterns across all devices.</p>
+  </div>
+  <div class="ai-info-card">
+    <i class="fas fa-temperature-high"></i>
+    <h3>Thermal Analysis</h3>
+    <p>Track temperature variations and identify thermal hotspots that accelerate SSD aging and increase failure risk.</p>
+  </div>
+  <div class="ai-info-card">
+    <i class="fas fa-shield-halved"></i>
+    <h3>Predictive Maintenance</h3>
+    <p>AI-powered failure forecasting gives you 7–180 days advance notice to prevent data loss and unplanned downtime.</p>
+  </div>
+  <div class="ai-info-card">
+    <i class="fas fa-network-wired"></i>
+    <h3>Data Center Coverage</h3>
+    <p>Monitor thousands of SSD devices simultaneously across multiple racks, servers, and data center locations.</p>
+  </div>
+</div>
+{% endblock %}

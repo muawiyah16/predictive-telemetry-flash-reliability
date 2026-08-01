@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard – SSDAnalyzer{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <div>
+    <h1 class="dash-title"><i class="fas fa-shield-halved"></i> Admin Dashboard</h1>
+    <p class="dash-sub">System Overview &amp; Performance Analytics</p>
+  </div>
+  <div class="admin-badge"><i class="fas fa-crown"></i> Administrator</div>
+</div>
+
+<!-- Admin Stats -->
+<div class="stats-row">
+  <div class="stat-card sc-indigo">
+    <div class="sc-icon"><i class="fas fa-users"></i></div>
+    <div><span class="sc-val">{{ stats.total_users }}</span><span class="sc-label">Total Users</span></div>
+  </div>
+  <div class="stat-card sc-cyan">
+    <div class="sc-icon"><i class="fas fa-database"></i></div>
+    <div><span class="sc-val">{{ stats.total_datasets }}</span><span class="sc-label">Datasets</span></div>
+  </div>
+  <div class="stat-card sc-emerald">
+    <div class="sc-icon"><i class="fas fa-hard-drive"></i></div>
+    <div><span class="sc-val">{{ stats.total_devices }}</span><span class="sc-label">Devices</span></div>
+  </div>
+  <div class="stat-card sc-rose">
+    <div class="sc-icon"><i class="fas fa-triangle-exclamation"></i></div>
+    <div><span class="sc-val">{{ stats.critical_devs }}</span><span class="sc-label">Critical</span></div>
+  </div>
+  <div class="stat-card sc-amber">
+    <div class="sc-icon"><i class="fas fa-bell"></i></div>
+    <div><span class="sc-val">{{ stats.unread_alerts }}</span><span class="sc-label">Unread Alerts</span></div>
+  </div>
+  <div class="stat-card sc-violet">
+    <div class="sc-icon"><i class="fas fa-bullseye"></i></div>
+    <div><span class="sc-val">{{ stats.avg_accuracy }}%</span><span class="sc-label">Avg Accuracy</span></div>
+  </div>
+</div>
+
+<!-- Quick Links -->
+<div class="admin-links">
+  <a href="{{ url_for('admin_users') }}" class="al-card">
+    <i class="fas fa-users-gear"></i>
+    <span>Manage Users</span>
+  </a>
+  <a href="{{ url_for('admin_reports') }}" class="al-card">
+    <i class="fas fa-chart-line"></i>
+    <span>System Reports</span>
+  </a>
+  <a href="{{ url_for('admin_analytics') }}" class="al-card">
+    <i class="fas fa-chart-bar"></i>
+    <span>Analytics</span>
+  </a>
+</div>
+
+<!-- Admin Graphs -->
+{% if admin_graphs %}
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-chart-line text-indigo"></i> System Overview Graphs</h2>
+  <div class="admin-graphs-grid">
+    {% for key, img in admin_graphs.items() %}
+    <div class="ag-card">
+      <img src="data:image/png;base64,{{ img }}" class="graph-img" alt="{{ key }}"/>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Recent Datasets -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-database"></i> Recent Datasets</h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>User</th><th>File</th><th>Rows</th><th>Uploaded</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for ds in datasets[:15] %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><span class="user-badge">{{ ds.username }}</span></td>
+          <td class="td-file"><i class="fas fa-file-csv"></i> {{ ds.original_name }}</td>
+          <td>{{ ds.rows or '—' }}</td>
+          <td>{{ ds.upload_time[:16] if ds.upload_time else '—' }}</td>
+          <td><span class="badge badge-{{ 'success' if ds.status=='completed' else 'warning' }}">{{ ds.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recent Alerts -->
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-bell text-rose"></i> Recent System Alerts</h2>
+  {% if alerts %}
+  <div class="alerts-list">
+    {% for alert in alerts %}
+    <div class="alert-item ai-{{ alert.severity }}">
+      <div class="ai-icon">
+        <i class="fas {% if alert.severity=='critical' %}fa-circle-xmark{% else %}fa-triangle-exclamation{% endif %}"></i>
+      </div>
+      <div class="ai-body">
+        <span class="ai-device">{{ alert.device_id }} &nbsp;•&nbsp; <em>{{ alert.username }}</em></span>
+        <p>{{ alert.message }}</p>
+        <small>{{ alert.created_at }}</small>
+      </div>
+      <span class="badge badge-{{ 'danger' if alert.severity=='critical' else 'warning' }}">
+        {{ alert.severity }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state small"><i class="fas fa-bell-slash"></i><p>No alerts</p></div>
+  {% endif %}
+</div>
+
+<!-- Prediction History -->
+{% if preds %}
+<div class="section-box">
+  <h2 class="sb-title"><i class="fas fa-brain text-violet"></i> ML Prediction History</h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>Algorithm</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for p in preds[:15] %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><span class="badge badge-indigo">{{ p.algorithm }}</span></td>
+          <td><strong>{{ "%.1f"|format((p.accuracy or 0)*100) }}%</strong></td>
+          <td>{{ "%.1f"|format((p.precision_val or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.recall_val or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.f1_score or 0)*100) }}%</td>
+          <td>{{ "%.1f"|format((p.auc_score or 0)*100) }}%</td>
+          <td>{{ p.created_at[:16] if p.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
