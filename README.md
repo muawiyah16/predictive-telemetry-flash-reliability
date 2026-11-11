@@ -16,7 +16,7 @@ An advanced machine learning application that analyzes telemetry data (wear leve
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com
+   git clone https://github.com/muawiyah16/predictive-telemetry-flash-reliability.git
    ```
 2. Navigate to the folder:
    ```bash
