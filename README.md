@@ -20,7 +20,7 @@ An advanced machine learning application that analyzes telemetry data (wear leve
    ```
 2. Navigate to the folder:
    ```bash
-   cd "SSD Failure"
+   cd "predictive-telemetry-flash-reliability"
    ```
 3. Install dependencies:
    ```bash
